@@ -5,7 +5,7 @@ const UserSchema = mongoose.Schema({
     username:{ type: String, require: true, default: "" },
     email: { type: String, require: true , default: "" },
     date_of_birth:{type: String, require: true, default: ""  },
-    gender: {type : String,enum : ["Female","Male"],required: true},
+    gender: {type : String,enum : ["female","male"],required: true},
     father_name:{ type: String, require: true, default: ""  },
     mother_name:{ type: String, require: true, default: ""  },
     password: { type: String, require: true , default: "" },
