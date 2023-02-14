@@ -15,8 +15,10 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "express-fileupload": "^1.4.0",
     "fast-two-sms": "^3.0.0",
     "fast2sms": "^1.0.3",
+    "fs": "^0.0.1-security",
     "joi": "^17.7.0",
     "jsonwebtoken": "^9.0.0",
     "messagebird": "^4.0.1",
@@ -27,6 +29,9 @@
     "nodemailer": "^6.9.1",
     "nodemon": "^2.0.20",
     "otp-generator": "^4.0.1",
+    "pdf-creator-node": "^2.3.5",
+    "pdf-node": "^1.0.1",
+    "pdfkit": "^0.13.0",
     "stripe": "^11.10.0",
     "twilio": "^4.7.1"
   }

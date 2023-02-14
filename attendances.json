@@ -1,0 +1,59 @@
+[{
+  "_id": {
+    "$oid": "63e4c1aff46640310cbddb16"
+  },
+  "date": "9/1/2023",
+  "user": {
+    "$oid": "63e4b9b3b63f6bebe539039b"
+  },
+  "__v": 0,
+  "checkInTime": {
+    "$date": {
+      "$numberLong": "1675936175097"
+    }
+  },
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1675936175100"
+    }
+  },
+  "cretatedBy": {
+    "$oid": "63e4b9b3b63f6bebe539039b"
+  },
+  "status": true,
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1675936175100"
+    }
+  }
+},{
+  "_id": {
+    "$oid": "63ea3c44f46640310cbee603"
+  },
+  "date": "13/1/2023",
+  "user": {
+    "$oid": "63ea00fbf1f6ff23f1e758c5"
+  },
+  "__v": 0,
+  "absent": false,
+  "checkInTime": {
+    "$date": {
+      "$numberLong": "1676295236232"
+    }
+  },
+  "createdAt": {
+    "$date": {
+      "$numberLong": "1676295236235"
+    }
+  },
+  "cretatedBy": {
+    "$oid": "63e9feb3fd442049cadb1bb5"
+  },
+  "present": true,
+  "status": true,
+  "updatedAt": {
+    "$date": {
+      "$numberLong": "1676295236235"
+    }
+  }
+}]

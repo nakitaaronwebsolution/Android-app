@@ -4,6 +4,8 @@ const AttendanceSchema = mongoose.Schema({
     cretatedBy:{ type:mongoose.Schema.Types.ObjectId, ref: 'User' },
     user:{ type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     date: { type: String },
+    present:{ type: Boolean, default: false },
+    absent: {type: Boolean, default: false },
     checkInTime: { type: Date },
     checkOutTime: { type: Date },
     status:  { type: Boolean, default: false }

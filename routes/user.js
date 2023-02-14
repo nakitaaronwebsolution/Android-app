@@ -35,10 +35,10 @@ router.post('/update_book',middleware.validateUser, bookController.update_book);
 router.post('/updatebook_image',middleware.validateUser,upload.single("image"), bookController.updatebook_image);
 router.post('/delete_book',middleware.validateUser, bookController.delete_book);
 
-router.post('/requestLeave',middleware.validateUser,userController.requestLeave);
-router.post('/update_Leave',middleware.validateUser,userController.update_Leave);
-
 router.post("/academicCreate",middleware.validateAdmin,userController.academicCreate)
 router.post("/getacademic_details",middleware.validateAdmin,userController.getacademic_details)
+
+router.post('/upload_pdf',middleware.validateAdmin,upload.single("pdf"),bookController.upload_pdf);
+router.post('/get_pdf',middleware.validateUser,bookController.get_pdf);
 
 module.exports=router

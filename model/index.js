@@ -3,5 +3,6 @@ module.exports={
     attendanceModel :require("./attendance"),
     bookModel :require("./book"),
     leaveModel :require("./leave"),
-    academicModel:require("./academic_D")
+    academicModel:require("./academic_D"),
+    pdfModel:require("./pdf")
 }

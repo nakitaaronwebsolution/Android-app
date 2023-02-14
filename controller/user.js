@@ -309,7 +309,7 @@ module.exports = {
   },
   async checkInAttendance(req, res) {
     try {
-      const { userId } = req.body
+      const { userId, present, absent } = req.body
       let validate = validateRequest(req.body, ['userId'])
       if (validate && !validate.status && validate.msg) return res.send(faildResponse(validate.msg))
       console.log(validate.msg)
@@ -333,13 +333,16 @@ module.exports = {
       let updateQuerry = {
         cretatedBy: req.decode._id,
         user: userId,
+        absent: absent,
         checkInTime: todatyData,
         date: toDay,
+        present: present,
+
         status: true
       }
       attendanceModel.findOneAndUpdate(findQuerry, updateQuerry, { new: true, upsert: true }, async function (err, result) {
         if (err) {
-          return res.send(faildResponse("Something went wrong while Update team Member."))
+          return res.send(faildResponse("Something went wrong "))
         }
         if (result) {
           return res.send(successResponse("Check In Success", result))
@@ -380,59 +383,7 @@ module.exports = {
       return res.send(faildResponse(err))
     }
   },
-  async requestLeave(req, res) {
-    try {
-      const tokenUser = req.decode
-      const { leaveType, fromDate, toDate, numberOfDays, reason } = req.body
-      let validate = validateRequest(req.body, ['leaveType', 'fromDate', 'toDate', 'numberOfDays', 'reason'])
-      if (validate && !validate.status && validate.msg) return res.send(faildResponse(validate.msg))
-      console.log(validate.msg)
-      const leave = await leaveModel.create({
-        studentName: tokenUser.username,
-        studentId: tokenUser._id,
-        leaveType: leaveType,
-        fromDate: fromDate,
-        toDate: toDate,
-        numberOfDays: numberOfDays,
-        reason: reason
-      })
-      if (!leave) {
-        return res.send(faildResponse("something went wrong"))
-      } else {
-        return res.send(successResponse("requestLeave create success", leave))
-      }
-    } catch (err) {
-      console.log("er====", err)
-      return res.send(faildResponse(err))
-    }
-  },
-  async update_Leave(req, res) {
-    try {
-      const { leaveId, leaveType, fromDate, toDate, reason } = req.body
-      let validate = validateRequest(req.body, ['leaveId'])
-      if (validate && !validate.status && validate.msg) return res.send(faildResponse(validate.msg))
-      console.log(validate.msg)
-      if (leaveType == "" || fromDate == "" || reason == "") return res.send(faildResponse("required the data"))
-      const leaveExist = await leaveModel.findOne({ _id: leaveId })
-      if (!leaveExist) {
-        return res.send(faildResponse("leave not exist"))
-      }
-      const result = await leaveModel.findOneAndUpdate({ _id: leaveExist._id },{
-        leaveType: leaveType,
-        fromDate: fromDate,
-        toDate: toDate,
-        reason: reason
-      })
-      if (!result) {
-        return res.send(faildResponse("something went wrong"))
-      } else {
-        return res.send(successResponse("leave update success", result))
-      }
-    } catch (e) {
-      console.log("err=======", e)
-      return res.send(faildResponse(e))
-    }
-  },
+
   async academicCreate(req, res) {
     try {
       const { course, Class, section, roll_number, admission_number, userId } = req.body
@@ -460,13 +411,24 @@ module.exports = {
       return res.send(faildResponse(error))
     }
   },
- 
- async getacademic_details(req,res){
-  try{
 
-  }catch(err){
-    console.log("err====",err)
-    return res.send(faildResponse(err))
-  }
- } 
+  async getacademic_details(req, res) {
+    try {
+      const { academicId } = req.body
+      let validate = validateRequest(req.body, ['academicId'])
+      if (validate && !validate.status && validate.msg) return res.send(faildResponse(validate.msg))
+      console.log(validate.msg)
+      academicModel.findOne({ _id: academicId }, function (err, result) {
+        if (err) {
+          return res.send(faildResponse(err))
+        }
+        else {
+          console.log(result)
+          return res.send(successResponse("academic details get Successfully", result))
+        }
+      }).populate("userId","username father_name mother_name gender blood_group date_of_birth contact_number Adhar_number address ")    } catch (error) {
+      console.log("err====", error)
+      return res.send(faildResponse(error))
+    }
+  },
 }
