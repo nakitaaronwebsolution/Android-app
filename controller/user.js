@@ -7,6 +7,7 @@ const otpGenerator = require('otp-generator')
 const nodemailer = require("nodemailer")
 const Joi = require("joi");
 const { validateSignup, validatelogin } = require("../helper/validate");
+const { version } = require('joi');
 module.exports = {
   async register(req, res) {
     try {
@@ -64,7 +65,7 @@ module.exports = {
       }
       const result = await userModel.findOne({ username: username })
       if (!result) {
-        return res.send(faildResponse("something went wrong"))
+        return res.status(404).send("something went wrong")
       } else {
         if (result) {
           console.log(result)
@@ -145,7 +146,7 @@ module.exports = {
         alphabets: false, specialChars: false, digits: true,
         lowerCaseAlphabets: false, upperCaseAlphabets: false,
       });
-      const link = `http://localhost:3000/reset-password/${OTP}`
+
       var transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -153,81 +154,17 @@ module.exports = {
           pass: "wslfwyqhiekvzpvj",
         },
       });
-      let emailHtml = `
-<!doctype html>
-<html lang="en-US">
-<head>
-    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <title>Reset Password Email Template</title>
-    <meta name="description" content="Reset Password Email Template.">
-    <style type="text/css">
-        a:hover {text-decoration: underline !important;}
-    </style>
-</head>
-<body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #F2F3F8;" leftmargin="0">
-    <!--100% body table-->
-    <table cellspacing="0" border="0" cellpadding="0" width="100%" bgcolor="#F2F3F8"
-        style="@import url(https://fonts.googleapis.com/css?family=Rubik:300,400,500,700%7COpen+Sans:300,400,600,700); font-family: 'Open Sans', sans-serif;">
-        <tr>
-            <td>
-                <table style="background-color: #F2F3F8; max-width:670px;  margin:0 auto;" width="100%" border="0"
-                    align="center" cellpadding="0" cellspacing="0">
-                    <tr>
-                        <td style="height:80px;">&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td style="height:20px;">&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table width="95%" border="0" align="center" cellpadding="0" cellspacing="0"
-                                style="max-width:670px;background:#fff; border-radius:3px; text-align:center;-webkit-box-shadow:0 6px 18px 0 rgba(0,0,0,.06);-moz-box-shadow:0 6px 18px 0 rgba(0,0,0,.06);box-shadow:0 6px 18px 0 rgba(0,0,0,.06);">
-                                <tr>
-                                    <td style="height:40px;">&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:0 35px;">
-                                        <h1 style="color:#1e1e2d; font-weight:500; margin:0;font-size:32px;font-family:'Rubik',sans-serif;">You have
-                                            requested to reset your password</h1>
-                                        <span
-                                            style="display:inline-block; vertical-align:middle; margin:29px 0 26px; border-bottom:1px solid #CECECE; width:100px;"></span>
-                                        <p style="color:#455056; font-size:15px;line-height:24px; margin:0;">
-                                            This is A unique link to reset your
-                                            password. To reset your password, click the
-                                            following link.
-                                        </p>
-                                        <a href="${link}"
-                                            style="background:#20e277;text-decoration:none !important; font-weight:500; margin-top:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;">Reset
-                                            Password</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="height:40px;">&nbsp;</td>
-                                </tr>
-                            </table>
-                        </td>
-                    <tr>
-                        <td style="height:20px;">&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td style="height:80px;">&nbsp;</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-    <!--/100% body table-->
-</body>
-</html>`
+
       var mailOptions = {
         from: "nakitaaronwebsolutions@gmail.com",
         to: email,
         subject: "Password Reset",
-        html: emailHtml,
+        html: `<h1>AWS Solutions</h1> </br> <p>Your OTP is: ${OTP}</p>`
+        // text :OTP
       };
-      const otp = await securePassword(OTP)
-
-      await userModel.findOneAndUpdate({ _id: userExist._id }, { otp: otp }, { new: true })
+      // const otp = await securePassword(OTP)
+      console.log(OTP)
+      await userModel.findOneAndUpdate({ _id: userExist._id }, { otp: OTP }, { new: true })
       transporter.sendMail(mailOptions, function (error, result) {
         if (error) {
 
@@ -239,7 +176,7 @@ module.exports = {
           return res.send(successResponse("send mail successfully ", result))
         }
       });
-      console.log(link);
+
     } catch (error) {
       console.log("err=====", error)
       return res.send(faildResponse(error))
@@ -247,40 +184,25 @@ module.exports = {
   },
   async verifyOtp(req, res) {
     try {
-      const { email, otp } = req.body
-      let validate = validateRequest(req.body, ['otp', 'email'])
+      const { otp } = req.body
+      let validate = validateRequest(req.body, ['otp'])
       if (validate && !validate.status && validate.msg) return res.send(faildResponse(validate.msg))
       console.log(validate.msg)
-      const userExist = await userModel.findOne({ email: email })
+      const userExist = await userModel.findOne({ otp: otp })
       if (!userExist) {
-        return res.send(faildResponse("user not found"))
-      }
-      const OTP = await comparePassword(otp, userExist.otp);
-
-      if (!OTP) {
         return res.send(faildResponse("wrong otp"))
       }
-      if (OTP) {
+      console.log(userExist)
+      if (userExist) {
         const deleteotp = await userModel.findOneAndUpdate({ _id: userExist._id }, { otp: "" }, { new: true })
+        console.log(deleteotp)
         if (deleteotp) {
           return res.send(successResponse("verify otp seccess"))
         }
-        // else{
-        //    var set = setTimeout(expireOtp, 4000)
-        //   console.log("=========")
-        //   function expireOtp() {
-        //     console.log("hello")
-        //     const exOtp = userModel.findOneAndUpdate({ _id: userExist._id }, { otp: "" }, { new: true })
-        //     if (exOtp) {
-        //       return res.send(faildResponse("expire otp"))
-        //     }
-        // }
-        // }
       }
-
-    } catch (err) {
-      console.log("err=====", err)
-      return res.send(faildResponse(err))
+    } catch (e) {
+      console.log("err===", e)
+      return res.send(faildResponse(e))
     }
   },
   async resetPassword(req, res) {
@@ -309,7 +231,7 @@ module.exports = {
   },
   async checkInAttendance(req, res) {
     try {
-      const { userId, present, absent } = req.body
+      const { userId, present } = req.body
       let validate = validateRequest(req.body, ['userId'])
       if (validate && !validate.status && validate.msg) return res.send(faildResponse(validate.msg))
       console.log(validate.msg)
@@ -321,23 +243,30 @@ module.exports = {
       if (!userExist) {
         return res.send(faildResponse("user not exist "))
       }
+      const days = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
       let todatyData = new Date()
       const getDate = todatyData.getDate()
-      const getMonth = todatyData.getMonth()
+      // const getDay = todatyData.getDay()
+      const getMonth = todatyData.getMonth() + 1
       const getFullYear = todatyData.getFullYear()
+      const isLeap = (year) => new Date(year, 1, 29).getDate() == 29;
+      if (isLeap(getFullYear)) {
+        days[2] = 29;
+      }
+      const total = days[todatyData.getMonth() + 1];
       const toDay = `${getDate}/${getMonth}/${getFullYear}`
+      console.log(total)
       let findQuerry = {
         user: userId,
         date: toDay
       }
+
       let updateQuerry = {
         cretatedBy: req.decode._id,
         user: userId,
-        absent: absent,
-        checkInTime: todatyData,
         date: toDay,
+        totalDay: total,
         present: present,
-
         status: true
       }
       attendanceModel.findOneAndUpdate(findQuerry, updateQuerry, { new: true, upsert: true }, async function (err, result) {
@@ -367,14 +296,24 @@ module.exports = {
       if (!userExist) {
         return res.send(faildResponse("user not exist"))
       }
-      let findQuerry = {
-        user: userId
+
+      const attendance = await attendanceModel.find({ user: userExist._id, present: true }).select("present totalDay")
+      if (!attendance) {
+        return res.send(faildResponse("attendance not exist"))
       }
-      attendanceModel.find(findQuerry, async function (err, result) {
+
+      console.log(attendance.length)
+      const presentcount = attendance.length
+      // let TOTAL=0;
+      const openDay = attendance.map((el, i) => el.totalDay)
+      // console.log( Number(openDay.join("")));
+      attendanceModel.updateMany({ user: userExist._id }, { $set: { presentcount: presentcount, absentcount: Number(openDay.join("")) - presentcount } }, { new: true }, async function (err, result) {
         if (err) {
+          console.log(err);
           return res.send(faildResponse("Something went wrong while Update team Member."))
         }
         if (result) {
+          console.log(result)
           return res.send(successResponse("Attendances In Success", result))
         }
       })
@@ -426,9 +365,18 @@ module.exports = {
           console.log(result)
           return res.send(successResponse("academic details get Successfully", result))
         }
-      }).populate("userId","username father_name mother_name gender blood_group date_of_birth contact_number Adhar_number address ")    } catch (error) {
+      }).populate("userId", "username father_name mother_name gender blood_group date_of_birth contact_number Adhar_number address ")
+    } catch (error) {
       console.log("err====", error)
       return res.send(faildResponse(error))
     }
   },
+  // async academic_update(req,res){
+  //   try{
+
+  //   }catch(e){
+  //     console.log("e=====",e)
+  //     return version.send(faildResponse(e))
+  //   }
+  // }
 }

@@ -36,7 +36,8 @@ router.post('/updatebook_image',middleware.validateUser,upload.single("image"), 
 router.post('/delete_book',middleware.validateUser, bookController.delete_book);
 
 router.post("/academicCreate",middleware.validateAdmin,userController.academicCreate)
-router.post("/getacademic_details",middleware.validateAdmin,userController.getacademic_details)
+router.post("/getacademic_details",middleware.validateUser,userController.getacademic_details)
+// router.post("/academic_update",middleware.validateAdmin,userController.academic_update)
 
 router.post('/upload_pdf',middleware.validateAdmin,upload.single("pdf"),bookController.upload_pdf);
 router.post('/get_pdf',middleware.validateUser,bookController.get_pdf);
