@@ -42,4 +42,9 @@ router.post("/getacademic_details",middleware.validateUser,userController.getaca
 router.post('/upload_pdf',middleware.validateAdmin,upload.single("pdf"),bookController.upload_pdf);
 router.post('/get_pdf',middleware.validateUser,bookController.get_pdf);
 
+router.post("/examcreate",middleware.validateAdmin,bookController.examcreate)
+router.post("/examget",middleware.validateUser,bookController.examget)
+
+
+
 module.exports=router

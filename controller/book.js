@@ -1,7 +1,8 @@
-const { userModel,academicModel, bookModel,pdfModel } = require('../model/index');
+const { userModel, academicModel, bookModel, pdfModel, examModel } = require('../model/index');
 
 const { successResponse, faildResponse, validateRequest } = require("../helper/helper");
 const mongoose = require("mongoose");
+const { number } = require('joi');
 
 module.exports = {
     async createbook(req, res) {
@@ -121,15 +122,15 @@ module.exports = {
             return res.send(faildResponse(err))
         }
     },
-    async upload_pdf(req,res){
-        try{
+    async upload_pdf(req, res) {
+        try {
             const { Class } = req.body
             let pdf = null;
             if (req.file) pdf = 'http://localhost:4002/pdfs/' + req.file.filename
             const result = await pdfModel.create({
                 pdf: pdf,
                 Class: Class
-            
+
             })
             if (!result) {
                 console.log(result)
@@ -137,33 +138,69 @@ module.exports = {
             } else {
                 return res.send(successResponse("pdf upload successfully", result))
             }
-        }catch(e){
-            console.log("err=====",e)
+        } catch (e) {
+            console.log("err=====", e)
             return res.send(faildResponse(e))
         }
     },
-    async get_pdf(req,res){
-        try{
-const {Class}=req.body
-let validate = validateRequest(req.body, ['Class'])
-if (validate && !validate.status && validate.msg) return res.send(faildResponse(validate.msg))
-console.log(validate.msg)
-const ClassExist= await academicModel.findOne({Class:Class})
-if(!ClassExist){
-    return res.send(faildResponse("Class not exist"))
-}
-const result = await pdfModel.find({Class:Class})
-if(!result){
-    return res.send(faildResponse("class not same"))
-}else{
-    return res.send(successResponse("pdf get success",result))
-}
-        }catch(e){
-            console.log("er====",err)
+    async get_pdf(req, res) {
+        try {
+            const { Class } = req.body
+            let validate = validateRequest(req.body, ['Class'])
+            if (validate && !validate.status && validate.msg) return res.send(faildResponse(validate.msg))
+            console.log(validate.msg)
+            const ClassExist = await academicModel.findOne({ Class: Class })
+            if (!ClassExist) {
+                return res.send(faildResponse("Class not exist"))
+            }
+            const result = await pdfModel.find({ Class: Class })
+            if (!result) {
+                return res.send(faildResponse("class not same"))
+            } else {
+                return res.send(successResponse("pdf get success", result))
+            }
+        } catch (e) {
+            console.log("er====", err)
             return res.send(faildResponse(e))
         }
+    },
+    async examcreate(req, res) {
+        try {
+            const { Class, date, subject, room_number } = req.body
+            let validate = validateRequest(req.body, ['Class', 'subject', 'room_number', 'date'])
+            if (validate && !validate.status && validate.msg) return res.send(faildResponse(validate.msg))
+            console.log(validate.msg)
+            const classExist = await academicModel.find({ Class: Class })
+            if (!classExist) {
+                return res.send(faildResponse("class not exist"))
+            }
+            const result = await examModel.create({
+                Class: Class, date: date, subject: subject, room_number: room_number
+            })
+            if (!result) {
+                return res.send(faildResponse("something went wrong"))
+            } else {
+                return res.send(successResponse("exam create successfully", result))
+            }
+        } catch (er) {
+            console.log("er=======", er)
+            return res.send(faildResponse(er))
+        }
+    },
+    async examget(req, res) {
+        try {
+            const result = await examModel.find({}).sort({ Class: 1 })
+            if (!result) {
+                return res.send(faildResponse("something went wrong"))
+            } else {
+                return res.send(successResponse("exam get successfully", result))
+            }
+        } catch (err) {
+            console.log("errr====", err)
+            return res.send(faildResponse(err))
+        }
     }
-    
+
 }
 
 
