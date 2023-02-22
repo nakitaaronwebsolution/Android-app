@@ -5,5 +5,6 @@ module.exports={
     leaveModel :require("./leave"),
     academicModel:require("./academic_D"),
     pdfModel:require("./pdf"),
-    examModel :require("./exam")
+    examModel :require("./exam"),
+    resultModel : require("./result")
 }

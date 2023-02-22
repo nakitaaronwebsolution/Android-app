@@ -3,6 +3,9 @@ const jwt = require("jsonwebtoken")
 const { successResponse, faildResponse, validateRequest, securePassword, comparePassword } = require("../helper/helper");
 const mongoose = require("mongoose")
 
+var Secret_Key =  process.env.Secret_Key
+ var Publishable_Key = process.env.Publishable_Key
+const stripe = require('stripe')(Secret_Key)
 const otpGenerator = require('otp-generator')
 const nodemailer = require("nodemailer")
 const Joi = require("joi");
@@ -296,18 +299,17 @@ module.exports = {
       if (!userExist) {
         return res.send(faildResponse("user not exist"))
       }
-
       const attendance = await attendanceModel.find({ user: userExist._id, present: true }).select("present totalDay")
       if (!attendance) {
         return res.send(faildResponse("attendance not exist"))
       }
-
       console.log(attendance.length)
       const presentcount = attendance.length
       // let TOTAL=0;
       const openDay = attendance.map((el, i) => el.totalDay)
       // console.log( Number(openDay.join("")));
-      attendanceModel.updateMany({ user: userExist._id }, { $set: { presentcount: presentcount, absentcount: Number(openDay.join("")) - presentcount } }, { new: true }, async function (err, result) {
+     const update = await attendanceModel.updateMany({ user: userExist._id }, { $set: { presentcount: presentcount, absentcount: Number(openDay.join("")) - presentcount } }, { new: true }, )
+     attendanceModel.find({},async function (err, result) {
         if (err) {
           console.log(err);
           return res.send(faildResponse("Something went wrong while Update team Member."))
@@ -316,7 +318,7 @@ module.exports = {
           console.log(result)
           return res.send(successResponse("Attendances In Success", result))
         }
-      })
+      }).select("totalDay absentcount presentcount")
     } catch (err) {
       console.log("err=====", err)
       return res.send(faildResponse(err))
@@ -350,7 +352,6 @@ module.exports = {
       return res.send(faildResponse(error))
     }
   },
-
   async getacademic_details(req, res) {
     try {
       const { academicId } = req.body
@@ -371,12 +372,38 @@ module.exports = {
       return res.send(faildResponse(error))
     }
   },
-  // async academic_update(req,res){
-  //   try{
+ async payment(req,res){
+  try{
+    stripe.customers.create({
+      email: req.body.stripeEmail,
+      source: req.body.stripeToken,
+      name: 'Gourav Hammad',
+      address: {
+        line1: 'TC 9/4 Old MES colony',
+        postal_code: '452331',
+        city: 'Indore',
+        state: 'Madhya Pradesh',
+        country: 'India',
+      }
+    })
+    .then((customer) => {
 
-  //   }catch(e){
-  //     console.log("e=====",e)
-  //     return version.send(faildResponse(e))
-  //   }
-  // }
+      return stripe.charges.create({
+        amount: 2500,	 // Charging Rs 25
+        description: 'Web Development Product',
+        currency: 'INR',
+        customer: customer.id
+      });
+    })
+    .then((charge) => {
+      res.send("Success") // If no error occurs
+    })
+    .catch((err) => {
+      res.send(err)	 // If some error occurs
+    });
+  }catch(e){
+    console.log("errr========",e)
+    return res.send(faildResponse(e))
+  }
+ }
 }

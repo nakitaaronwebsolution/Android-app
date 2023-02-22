@@ -37,7 +37,7 @@ router.post('/delete_book',middleware.validateUser, bookController.delete_book);
 
 router.post("/academicCreate",middleware.validateAdmin,userController.academicCreate)
 router.post("/getacademic_details",middleware.validateUser,userController.getacademic_details)
-// router.post("/academic_update",middleware.validateAdmin,userController.academic_update)
+
 
 router.post('/upload_pdf',middleware.validateAdmin,upload.single("pdf"),bookController.upload_pdf);
 router.post('/get_pdf',middleware.validateUser,bookController.get_pdf);
@@ -45,6 +45,8 @@ router.post('/get_pdf',middleware.validateUser,bookController.get_pdf);
 router.post("/examcreate",middleware.validateAdmin,bookController.examcreate)
 router.post("/examget",middleware.validateUser,bookController.examget)
 
-
+router.post("/create_result",middleware.validateAdmin,bookController.create_result)
+router.post("/get_result",middleware.validateUser,bookController.get_result)
+router.post("/payment",middleware.validateUser,userController.payment)
 
 module.exports=router

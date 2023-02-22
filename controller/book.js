@@ -1,4 +1,4 @@
-const { userModel, academicModel, bookModel, pdfModel, examModel } = require('../model/index');
+const { userModel, academicModel, bookModel, pdfModel, examModel, resultModel } = require('../model/index');
 
 const { successResponse, faildResponse, validateRequest } = require("../helper/helper");
 const mongoose = require("mongoose");
@@ -199,9 +199,55 @@ module.exports = {
             console.log("errr====", err)
             return res.send(faildResponse(err))
         }
-    }
-
+    },
+    async create_result(req, res) {
+        try {
+            const {  marks,subjectId,total,userId } = req.body
+            let validate = validateRequest(req.body, ['marks', 'subjectId', 'total','userId'])
+            if (validate && !validate.status && validate.msg) return res.send(faildResponse(validate.msg))
+            console.log(validate.msg)
+            const classExist = await examModel.findOne({ _id: subjectId })
+            if (!classExist) {
+                return res.send(faildResponse("subject not exist"))
+            }
+            const userExist = await userModel.findOne({ _id: userId })
+            if (!userExist) {
+                return res.send(faildResponse("user not exist"))
+            }
+            const resultExist = await resultModel.findOne({
+               subjectId:classExist,userId:userExist
+            })
+            if(resultExist){
+                return res.send(faildResponse("result already Exist"))  
+            }
+            const result = await resultModel.create({
+                marks,subjectId:classExist,total,userId:userExist
+            })
+            if (!result) {
+                return res.send(faildResponse("something went wrong"))
+            } else {
+                return res.send(successResponse("result create successfully", result))
+            }
+        } catch (er) {
+            console.log("er=======", er)
+            return res.send(faildResponse(er))
+        }
+    },
+    //*********************************************************************************************** */
+    async get_result(req, res) {
+        try {
+            const result = await resultModel.find({}).populate("userId", "username").populate("subjectId","Class subject")
+            if (!result) {
+                return res.send(faildResponse("something went wrong"))
+            } else {
+                return res.send(successResponse("result get successfully", result))
+            }
+        } catch (er) {
+            console.log("er=======", er)
+            return res.send(faildResponse(er))
+        }
+    },
 }
 
 
-
+var stripe = require('stripe')('sk_test_51MZr1iSDloUSGBJkaN0YDRSqIPWTgtloyhZQMsWR45q6bAauaQ9Z6avdi8qqpK7joxyNVof8EI2ft5fp7AYLtMiV00CjUg08lq');
