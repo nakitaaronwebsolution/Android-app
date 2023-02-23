@@ -1,4 +1,4 @@
-const { userModel, attendanceModel, leaveModel, academicModel } = require('../model/index');
+const { userModel, attendanceModel, leaveModel, academicModel, imageModel } = require('../model/index');
 const jwt = require("jsonwebtoken")
 const { successResponse, faildResponse, validateRequest, securePassword, comparePassword } = require("../helper/helper");
 const mongoose = require("mongoose")
@@ -374,6 +374,7 @@ module.exports = {
   },
  async payment(req,res){
   try{
+    const userExist = await userModel.findOne({email:req.body.stripeEmail})
     stripe.customers.create({
       email: req.body.stripeEmail,
       source: req.body.stripeToken,
@@ -403,6 +404,20 @@ module.exports = {
     });
   }catch(e){
     console.log("errr========",e)
+    return res.send(faildResponse(e))
+  }
+ },
+ async upload_image(req,res){
+  try{
+    let image = null;
+    if (req.file) image = 'http://localhost:4002/images/' + req.file.filename
+    let result = await imageModel.create({ image: image })
+    if (!result) {
+      return res.send(faildResponse("this User is Not exist"));
+    } else {
+      return res.send(successResponse("image upload successfully", result));
+    }
+  }catch(e){
     return res.send(faildResponse(e))
   }
  }

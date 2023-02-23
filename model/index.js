@@ -6,5 +6,6 @@ module.exports={
     academicModel:require("./academic_D"),
     pdfModel:require("./pdf"),
     examModel :require("./exam"),
-    resultModel : require("./result")
+    resultModel : require("./result"),
+    imageModel : require("./image")
 }

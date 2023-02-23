@@ -250,4 +250,3 @@ module.exports = {
 }
 
 
-var stripe = require('stripe')('sk_test_51MZr1iSDloUSGBJkaN0YDRSqIPWTgtloyhZQMsWR45q6bAauaQ9Z6avdi8qqpK7joxyNVof8EI2ft5fp7AYLtMiV00CjUg08lq');

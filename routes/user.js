@@ -48,5 +48,5 @@ router.post("/examget",middleware.validateUser,bookController.examget)
 router.post("/create_result",middleware.validateAdmin,bookController.create_result)
 router.post("/get_result",middleware.validateUser,bookController.get_result)
 router.post("/payment",middleware.validateUser,userController.payment)
-
+router.post("/upload_image",upload.single("image"),userController.upload_image)
 module.exports=router
